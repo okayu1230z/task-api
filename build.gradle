@@ -1,0 +1,68 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.7'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "org.dddjava.jig-gradle-plugin" version '2022.4.4'
+    id 'checkstyle'
+	id 'jacoco'
+    id 'java'
+    id 'com.github.spotbugs' version '4.6.0'
+    id "jp.skypencil.spotbugs.snom" version "0.5.1"
+}
+
+group = 'lupinus.com'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+checkstyle {
+    toolVersion '8.16'
+    configFile file('./config/checkstyle/checkstyle.xml')
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+
+    runtimeOnly 'com.h2database:h2:1.4.200'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.4'
+    testImplementation 'org.dbunit:dbunit:2.7.3'
+
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.11.0'
+}
+
+spotbugs {
+    toolVersion = '4.6.0'
+}
+
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/spotbugsTest.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+    }
+}
+
+// testタスクのあとにjacocoTestReportタスクを実行する
+test.finalizedBy jacocoTestReport
+
+jacocoTestReport {
+	reports {
+		html.enabled = true
+	}
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
